@@ -32,7 +32,7 @@
 
 			uppy
 				.use(DragDrop, { target: '#drag-drop-area' })
-				.use(Tus, { endpoint: 'http://localhost:3000/courses/upload', chunkSize: 150 * 1024 * 1024 })
+				.use(Tus, { endpoint: 'https://api.owly.network/courses/upload', chunkSize: 150 * 1024 * 1024 })
 				.use(ProgressBar, { target: '.for-ProgressBar', hideAfterFinish: false })
 				.on('upload-success', onUploadSuccess('.uploaded-files ol'));
 
