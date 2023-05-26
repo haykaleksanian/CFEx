@@ -1,58 +1,37 @@
 <link href="https://releases.transloadit.com/uppy/v3.6.1/uppy.min.css" rel="stylesheet" />
-<button id="browse">Select Files</button>
 <div id="upload-area"></div>
-<ol id="el"></ol>
+<div class="uploaded-files" style="margin-top: 50px">
+    <ol></ol>
+</div>
 <script type="module">
+    const onUploadSuccess = el => (file, response) => {
+				const li = document.createElement('li');
+				const a = document.createElement('a');
+				a.href = response.uploadURL;
+				a.target = '_blank';
+				a.appendChild(document.createTextNode(file.name));
+				li.appendChild(a);
 
+				document.querySelector(el).appendChild(li);
+			};
     import {
+        Tus,
         Uppy,
         Dashboard,
         RemoteSources,
     } from 'https://releases.transloadit.com/uppy/v3.6.1/uppy.min.mjs'
-    const onUploadSuccess = el => (file, response) => {
-        const li = document.createElement('li');
-        const a = document.createElement('a');
-        a.href = response.uploadURL;
-        a.target = '_blank';
-        a.appendChild(document.createTextNode(file.name));
-        li.appendChild(a);
-        document.querySelector("#el").appendChild(li);
-    };
-    const uppy = new Uppy()
-        // .use(Transloadit, {
-        //   waitForEncoding: true,
-        //   alwaysRunAssembly: true,
-        //   params: {
-        //     // To avoid tampering use signatures:
-        //     // https://transloadit.com/docs/api/#authentication
-        //     auth: {
-        //       key: 'YOUR_TRANSLOADIT_KEY',
-        //     },
-        //     // It's often better store encoding instructions in your account
-        //     // and use a template_id instead of adding these steps inline
-        //     steps: {
-        //       ':original': {
-        //         robot: '/upload/handle',
-        //       },
+    
+     const uppy = new Uppy()
+     .use(Dashboard, {
+        inline: true,
+        target: '#upload-area',
+        restrictions:{
+            maxNumberOfFiles:1,
+        }
+      })
+      .use(Tus, { endpoint: 'https://api.owly.network/courses/upload', chunkSize: 150 * 1024 * 1024 })
+      .on('upload-success', onUploadSuccess('.uploaded-files ol'));
 
-        //       exported: {
-        //         use: ['faces_detected', ':original'],
-        //         robot: '/s3/store',
-        //         credentials: 'YOUR_AWS_CREDENTIALS',
-        //         url_prefix: 'https://demos.transloadit.com/',
-        //       },
-        //     },
-        //   },
-        // })
-        .use(Dashboard, { inline: true, target: '#upload-area' })
-        .use(RemoteSources, {
-            companionUrl: 'https://api.owly.network/courses/upload',
-            sources: ['Instagram', 'GoogleDrive', 'Unsplash', 'Url'],
-        })
 
-        .on('complete', onUploadSuccess('.uploaded-files ol'))
 
-        .on('error', (error) => {
-            console.error(error)
-        })
 </script>
