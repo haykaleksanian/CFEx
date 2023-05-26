@@ -3,61 +3,111 @@
 
 <head>
     <link href="https://releases.transloadit.com/uppy/v3.6.1/uppy.min.css" rel="stylesheet" />
+    <style>
+        .uppy-DashboardContent-addMore {
+            display: none !important;
+        }
 
+        .hide {
+            display: none !important;
+        }
+
+        .uppy-Informer p {
+            background-color: #cb212277;
+        }
+    </style>
 </head>
 
 <body>
     <div id="upload-area"></div>
     <div class="uploaded-files" style="margin-top: 50px">
-        <ol></ol>
+        <ol id="el"></ol>
     </div>
     <div id="progres-bar"></div>
 
-    
     <script type="module">
-        const onUploadSuccess = el => (file, response) => {
-            const li = document.createElement('li');
-            const a = document.createElement('a');
-            a.href = response.uploadURL;
-            a.target = '_blank';
-            a.appendChild(document.createTextNode(file.name));
-            li.appendChild(a);
+        function onUploadSuccess(response) {
 
-            document.querySelector(el).appendChild(li);
+            let element = response.successful[0]
+
+            let li = document.createElement('li')
+            let a = document.createElement('a')
+            a.href = element.uploadURL
+            a.target = '_blank';
+            a.appendChild(document.createTextNode(element.name));
+            li.appendChild(a);
+            document.querySelector("#el").appendChild(li);
+
         };
+
+        let notvideoflag = false
 
         import {
             Tus,
             Uppy,
             Dashboard,
             RemoteSources,
-
         } from 'https://releases.transloadit.com/uppy/v3.6.1/uppy.min.mjs'
 
         const uppy = new Uppy()
             .use(Dashboard, {
-                restrictions: {
-                    maxNumberOfFiles: 1,
-                },
                 inline: true,
                 target: '#upload-area',
-                proudlyDisplayPoweredByUppy: false
+                acceptedFileTypes: ['.mov'],
+                proudlyDisplayPoweredByUppy: false,
+                note: 'Please attach only video files',
+                metaFields: [
+                    { id: 'name', name: 'Video file name', placeholder: 'File Name', required: true }
+                ],
 
             })
-            // .use(ProgressBar, { target: '#progres-bar' })
-            //             .use(RemoteSources, {
+            // .use(Uppy.MetaFields, {
+            //     fields: [
+            //         { id: 'name', name: 'Name', placeholder: 'Enter your name' },
+            //         { id: 'email', name: 'Email', placeholder: 'Enter your email' },
+            //     ],
+            // })
+            // .use(RemoteSources, {
             //     companionUrl: 'https://companion.uppy.io/',
             //     sources: ['Instagram', 'GoogleDrive', 'Unsplash', 'Url'],
             // })
             .use(Tus, { endpoint: 'https://api.owly.network/courses/upload', chunkSize: 150 * 1024 * 1024 })
-            .on('upload-success', onUploadSuccess('.uploaded-files ol'));
+            .on('file-added', hideUploadButton)
+            .on('file-removed', hideUploadButton)
+            .on("complete", (result) => {
+                onUploadSuccess(result)
+            });
 
+
+        let fileCurCount = 0;
+        function hideUploadButton(file) {
+            let filescount = uppy.getFiles().length;
+
+            if (fileCurCount < 1 && file.type.startsWith('video/')) {
+                fileCurCount++;
+            }
+            else {
+                ShowDashboardAlert("Only one video can be uploaded")
+                uppy.removeFile(file.id)
+            }
+            if (filescount == 0) {
+                fileCurCount = 0
+            }
+        }
+        function ShowDashboardAlert(message) {
+            if (uppy.getFiles().length != 0) {
+                uppy.info({
+                    message: message,
+                    type: 'info',
+                    duration: 3000,
+                })
+            }
+        }
 
 
     </script>
 
 
-   
 </body>
 
 </html>
