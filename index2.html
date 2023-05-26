@@ -1,47 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <link href="https://releases.transloadit.com/uppy/v3.6.1/uppy.min.css" rel="stylesheet" />
 
 </head>
+
 <body>
     <div id="upload-area"></div>
-<div class="uploaded-files" style="margin-top: 50px">
-    <ol></ol>
-</div>
+    <div class="uploaded-files" style="margin-top: 50px">
+        <ol></ol>
+    </div>
 
 
-<script type="module">
-    const onUploadSuccess = el => (file, response) => {
-				const li = document.createElement('li');
-				const a = document.createElement('a');
-				a.href = response.uploadURL;
-				a.target = '_blank';
-				a.appendChild(document.createTextNode(file.name));
-				li.appendChild(a);
+    <script type="module">
+        const onUploadSuccess = el => (file, response) => {
+            const li = document.createElement('li');
+            const a = document.createElement('a');
+            a.href = response.uploadURL;
+            a.target = '_blank';
+            a.appendChild(document.createTextNode(file.name));
+            li.appendChild(a);
 
-				document.querySelector(el).appendChild(li);
-			};
-    import {
-        Tus,
-        Uppy,
-        Dashboard,
-        RemoteSources,
-    } from 'https://releases.transloadit.com/uppy/v3.6.1/uppy.min.mjs'
-    
-     const uppy = new Uppy()
-     .use(Dashboard, {
-        inline: true,
-        target: '#upload-area',
-        restrictions:{
-            maxNumberOfFiles:1,
-        }
-      })
-      .use(Tus, { endpoint: 'https://api.owly.network/courses/upload', chunkSize: 150 * 1024 * 1024 })
-      .on('upload-success', onUploadSuccess('.uploaded-files ol'));
+            document.querySelector(el).appendChild(li);
+        };
+
+        import {
+            Tus,
+            Uppy,
+            Dashboard,
+            RemoteSources,
+        } from 'https://releases.transloadit.com/uppy/v3.6.1/uppy.min.mjs'
+
+        const uppy = new Uppy()
+            .use(Dashboard, {
+                inline: true,
+                target: '#upload-area',
+                restrictions: {
+                    maxNumberOfFiles: 1,
+                    allowedFileTypes:['.mp4', '.webm']
+                },
+                proudlyDisplayPoweredByUppy: false
+
+            })
+            // .use(RemoteSources, {
+            //     companionUrl: 'http://companion.uppy.io',
+            //     sources: ['Instagram', 'GoogleDrive', 'Unsplash', 'Url'],
+            // })
+            .use(Tus, { endpoint: 'https://api.owly.network/courses/upload', chunkSize: 150 * 1024 * 1024 })
+            .on('upload-success', onUploadSuccess('.uploaded-files ol'));
 
 
 
-</script>
+    </script>
 </body>
+
 </html>
