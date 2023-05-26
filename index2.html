@@ -13,7 +13,7 @@
     </div>
     <div id="progres-bar"></div>
 
-<!-- 
+    
     <script type="module">
         const onUploadSuccess = el => (file, response) => {
             const li = document.createElement('li');
@@ -30,7 +30,6 @@
             Tus,
             Uppy,
             Dashboard,
-            ProgressBar,
             RemoteSources,
 
         } from 'https://releases.transloadit.com/uppy/v3.6.1/uppy.min.mjs'
@@ -55,28 +54,10 @@
 
 
 
-    </script> -->
-
-
-    <script type="module">
-        import{
-            Uppy,
-            Core,
-            Dashboard,
-        }from "https://releases.transloadit.com/uppy/v3.6.1/uppy.min.mjs";
-        const uppy = new Uppy()   
-        
-        .use(Dashboard, {
-        target: '#upload-area',
-        inline: true,
-        restrictions: {
-          maxNumberOfFiles: 8, // Set the maximum number of files allowed
-        },
-      })
-      .on('complete', (result) => {
-        console.log('Upload complete', result);
-      });
     </script>
+
+
+   
 </body>
 
 </html>
