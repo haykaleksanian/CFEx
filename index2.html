@@ -1,8 +1,16 @@
-<link href="https://releases.transloadit.com/uppy/v3.6.1/uppy.min.css" rel="stylesheet" />
-<div id="upload-area"></div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://releases.transloadit.com/uppy/v3.6.1/uppy.min.css" rel="stylesheet" />
+
+</head>
+<body>
+    <div id="upload-area"></div>
 <div class="uploaded-files" style="margin-top: 50px">
     <ol></ol>
 </div>
+
+
 <script type="module">
     const onUploadSuccess = el => (file, response) => {
 				const li = document.createElement('li');
@@ -35,3 +43,5 @@
 
 
 </script>
+</body>
+</html>
