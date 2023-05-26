@@ -11,8 +11,9 @@
     <div class="uploaded-files" style="margin-top: 50px">
         <ol></ol>
     </div>
+    <div id="progres-bar"></div>
 
-
+<!-- 
     <script type="module">
         const onUploadSuccess = el => (file, response) => {
             const li = document.createElement('li');
@@ -29,22 +30,24 @@
             Tus,
             Uppy,
             Dashboard,
+            ProgressBar,
             RemoteSources,
+
         } from 'https://releases.transloadit.com/uppy/v3.6.1/uppy.min.mjs'
 
         const uppy = new Uppy()
             .use(Dashboard, {
-                inline: true,
-                target: '#upload-area',
                 restrictions: {
                     maxNumberOfFiles: 1,
-                    allowedFileTypes:['.mp4', '.webm']
                 },
+                inline: true,
+                target: '#upload-area',
                 proudlyDisplayPoweredByUppy: false
 
             })
-            // .use(RemoteSources, {
-            //     companionUrl: 'http://companion.uppy.io',
+            // .use(ProgressBar, { target: '#progres-bar' })
+            //             .use(RemoteSources, {
+            //     companionUrl: 'https://companion.uppy.io/',
             //     sources: ['Instagram', 'GoogleDrive', 'Unsplash', 'Url'],
             // })
             .use(Tus, { endpoint: 'https://api.owly.network/courses/upload', chunkSize: 150 * 1024 * 1024 })
@@ -52,6 +55,26 @@
 
 
 
+    </script> -->
+
+
+    <script type="module">
+        import{
+            Uppy,
+            Core,
+            Dashboard,
+        }from "https://releases.transloadit.com/uppy/v3.6.1/uppy.min.mjs";
+        const uppy = new Uppy()
+        .use(Dashboard, {
+        target: '#upload-area',
+        inline: true,
+        restrictions: {
+          maxNumberOfFiles: 10, // Set the maximum number of files allowed
+        },
+      })
+      .on('complete', (result) => {
+        console.log('Upload complete', result);
+      });
     </script>
 </body>
 

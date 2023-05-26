@@ -1,104 +1,87 @@
-import Uppy, { debugLogger } from "@uppy/core";
-import Dashboard from "@uppy/dashboard";
-import RemoteSources from "@uppy/remote-sources";
-import Webcam from "@uppy/webcam";
-import ScreenCapture from "@uppy/screen-capture";
-import GoldenRetriever from "@uppy/golden-retriever";
-import Tus from "@uppy/tus";
-import AwsS3 from "@uppy/aws-s3";
-import AwsS3Multipart from "@uppy/aws-s3-multipart";
-import XHRUpload from "@uppy/xhr-upload";
-import ImageEditor from "@uppy/image-editor";
-import DropTarget from "@uppy/drop-target";
-import Audio from "@uppy/audio";
-import Compressor from "@uppy/compressor";
+// const Uppy = require('@uppy/core')
+// const Dashboard = require('@uppy/dashboard')
+// const GoogleDrive = require('@uppy/google-drive')
+// const Dropbox = require('@uppy/dropbox')
+// const Instagram = require('@uppy/instagram')
+// const Facebook = require('@uppy/facebook')
+// const OneDrive = require('@uppy/onedrive')
+// const Webcam = require('@uppy/webcam')
+// const ScreenCapture = require('@uppy/screen-capture')
+// const ImageEditor = require('@uppy/image-editor')
+// const Tus = require('@uppy/tus')
+// const Url = require('@uppy/url')
+// const DropTarget = require('@uppy/drop-target')
+// const GoldenRetriever = require('@uppy/golden-retriever')
 
-import "@uppy/core/dist/style.css";
-import "@uppy/dashboard/dist/style.css";
-import "@uppy/audio/dist/style.css";
-import "@uppy/screen-capture/dist/style.css";
-import "@uppy/image-editor/dist/style.css";
+const StatusBar = Uppy.StatusBar
+const Informer = Uppy.Informer
+const Webcam = Uppy.Webcam
+const Dashboard = Uppy.Dashboard
+const GoogleDrive = Uppy.GoogleDrive
+const Dropbox = Uppy.Dropbox
+const Instagram = Uppy.Instagram
+const Facebook = Uppy.Facebook
+const OneDrive = Uppy.OneDrive
+const ScreenCapture = Uppy.ScreenCapture
+const ImageEditor = Uppy.ImageEditor
+const Tus = Uppy.Tus
+const DropTarget = Uppy.DropTarget
+const GoldenRetriever = Uppy.GoldenRetriever
+const XHRUpload = Uppy.XHRUpload
 
-const UPLOADER = "tus";
-const COMPANION_URL = "http://companion.uppy.io";
-const companionAllowedHosts = [];
-const TUS_ENDPOINT = "https://tusd.tusdemo.net/files/";
-const XHR_ENDPOINT = "";
+const uppy = new Uppy.Core({
+    id: 'uppy',
+    autoProceed: false,
+    allowMultipleUploads: true,
+    debug: false,
+    restrictions: {
+      maxFileSize: null,
+      minFileSize: null,
+      maxTotalFileSize: null,
+      maxNumberOfFiles: null,
+      minNumberOfFiles: null,
+      allowedFileTypes: ['image/*', 'video/*']
+    },
+    meta: {},
+    onBeforeFileAdded: (currentFile, files) => currentFile,
+    onBeforeUpload: (files) => {},
+    locale: {},
+    // store: new DefaultStore(),
+    // logger: justErrorsLogger,
+    infoTimeout: 5000
+})
+.use(Dashboard, {
+  trigger: '.UppyModalOpenerBtn',
+  inline: true,
+  target: '.uppy-container',
+  replaceTargetContent: true,
+  showProgressDetails: true,
+  note: 'Images and video only, 2–3 files, up to 1 MB',
+  height: 470,
+  metaFields: [
+    { id: 'name', name: 'Name', placeholder: 'file name' },
+    { id: 'caption', name: 'Caption', placeholder: 'describe what the image is about' }
+  ],
+  browserBackButtonClose: false
+})
+.use(GoogleDrive, { target: Dashboard, companionUrl: 'https://companion.uppy.io' })
+.use(Dropbox, { target: Dashboard, companionUrl: 'https://companion.uppy.io' })
+.use(Instagram, { target: Dashboard, companionUrl: 'https://companion.uppy.io' })
+.use(Facebook, { target: Dashboard, companionUrl: 'https://companion.uppy.io' })
+.use(OneDrive, { target: Dashboard, companionUrl: 'https://companion.uppy.io' })
+.use(Webcam, { target: Dashboard })
+.use(ScreenCapture, { target: Dashboard })
+.use(ImageEditor, { target: Dashboard })
+// .use(Tus, { endpoint: 'https://tusd.tusdemo.net/files/' })
+.use(DropTarget, {target: document.body })
+.use(GoldenRetriever)
+uppy.use(XHRUpload, {
+    endpoint: './upload_hanlder.php'
+})
 
-const RESTORE = false;
 
-const uppyDashboard = new Uppy({ logger: debugLogger })
-  .use(Dashboard, {
-    inline: true,
-    target: "#app",
-    showProgressDetails: true,
-    proudlyDisplayPoweredByUppy: true
-  })
-  .use(RemoteSources, {
-    companionUrl: COMPANION_URL,
-    sources: [
-      "Box",
-      "Dropbox",
-      "Facebook",
-      "GoogleDrive",
-      "Instagram",
-      "OneDrive",
-      "Unsplash",
-      "Url"
-    ],
-    companionAllowedHosts
-  })
-  .use(Webcam, {
-    target: Dashboard,
-    showVideoSourceDropdown: true,
-    showRecordingLength: true
-  })
-  .use(Audio, {
-    target: Dashboard,
-    showRecordingLength: true
-  })
-  .use(ScreenCapture, { target: Dashboard })
-  .use(ImageEditor, { target: Dashboard })
-  .use(DropTarget, {
-    target: document.body
-  })
-  .use(Compressor);
-
-switch (UPLOADER) {
-  case "tus":
-    uppyDashboard.use(Tus, { endpoint: TUS_ENDPOINT, limit: 6 });
-    break;
-  case "s3":
-    uppyDashboard.use(AwsS3, { companionUrl: COMPANION_URL, limit: 6 });
-    break;
-  case "s3-multipart":
-    uppyDashboard.use(AwsS3Multipart, {
-      companionUrl: COMPANION_URL,
-      limit: 6
-    });
-    break;
-  case "xhr":
-    uppyDashboard.use(XHRUpload, {
-      endpoint: XHR_ENDPOINT,
-      limit: 6,
-      bundle: true
-    });
-    break;
-  default:
-}
-
-if (RESTORE) {
-  uppyDashboard.use(GoldenRetriever, { serviceWorker: true });
-}
-
-window.uppy = uppyDashboard;
-
-uppyDashboard.on("complete", (result) => {
-  if (result.failed.length === 0) {
-    console.log("Upload successful");
-  } else {
-    console.warn("Upload failed");
-  }
-  console.log("successful files:", result.successful);
-  console.log("failed files:", result.failed);
-});
+uppy.on('complete', result => {
+    document.location.reload();
+  console.log('successful files:', result.successful)
+  console.log('failed files:', result.failed)
+})
