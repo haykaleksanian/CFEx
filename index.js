@@ -20,7 +20,7 @@ import "@uppy/screen-capture/dist/style.css";
 import "@uppy/image-editor/dist/style.css";
 
 const UPLOADER = "tus";
-const COMPANION_URL = "https://api.owly.network/courses/upload";
+const COMPANION_URL = "http://companion.uppy.io";
 const companionAllowedHosts = [];
 const TUS_ENDPOINT = "https://tusd.tusdemo.net/files/";
 const XHR_ENDPOINT = "";
